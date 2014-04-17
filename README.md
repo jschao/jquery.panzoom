@@ -253,6 +253,16 @@ __Arguments__
       This option allows you to specify a different d value for the zoom.<br/>
       For instance, to flip vertically, you could set -1 as the dValue.
 
+### `rotate( rotation[, options] )`
+
+__Arguments__
+
+  1. `rotation` _{Number}_: The rotation angle to set
+  3. `options` _{Object}_: These options are also passed along to [setMatrix](#setmatrix-matrix-options-).
+
+    1. `options.matrix` _{Array}_: The matrix being manipulated (If this is not passed, the matrix will be calculated on every call to pan, which could be a performance bottleneck if this is bound to a move event)
+    2. `options.silent` _{Boolean}_: Silence the pan event. Note that this will also silence the setMatrix change event.
+
 ```js
 // Transition a zoom in based on the scale increment, min and max values
 $elem.panzoom("zoom");

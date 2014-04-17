@@ -402,8 +402,8 @@ describe('Panzoom', function() {
 		var cur = $zoomRange.val();
 		$elem.panzoom('zoom');
 		var val = $zoomRange.val();
-		expect( val ).to.not.equal( cur );
-		expect( val ).to.equal( $elem.panzoom('getMatrix')[0] );
+		expect( +val ).to.not.equal( +cur );
+		expect( +val ).to.equal( $elem.panzoom('getMatrix')[0] );
 	});
 	it('should set the zoom range step option', function() {
 		var old = $zoomRange.attr('step');
@@ -583,10 +583,10 @@ describe('Panzoom', function() {
 		panzoom.setMatrix([ 2, 0, 0, 2, 1, 1 ]);
 		$elem.panzoom('resetZoom', false);
 		var matrix = panzoom.getMatrix();
-		expect( matrix[0] ).to.equal( '1' );
-		expect( matrix[3] ).to.equal( '1' );
-		expect( matrix[4] ).to.equal( '1' );
-		expect( matrix[5] ).to.equal( '1' );
+		expect( matrix[0] ).to.equal( 1 );
+		expect( matrix[3] ).to.equal( 1 );
+		expect( matrix[4] ).to.equal( 1 );
+		expect( matrix[5] ).to.equal( 1 );
 		$elem.panzoom('reset');
 	});
 	it('should fire a zoom event on resetZoom', function() {
@@ -605,10 +605,10 @@ describe('Panzoom', function() {
 		panzoom.setMatrix([ 2, 0, 0, 2, 1, 1 ], false);
 		$elem.panzoom('resetPan');
 		var matrix = panzoom.getMatrix();
-		expect( matrix[0] ).to.equal( '2' );
-		expect( matrix[3] ).to.equal( '2' );
-		expect( matrix[4] ).to.equal( '0' );
-		expect( matrix[5] ).to.equal( '0' );
+		expect( matrix[0] ).to.equal( 2 );
+		expect( matrix[3] ).to.equal( 2 );
+		expect( matrix[4] ).to.equal( 0 );
+		expect( matrix[5] ).to.equal( 0 );
 		$elem.panzoom('reset');
 	});
 	it('should fire a pan event on resetPan', function() {

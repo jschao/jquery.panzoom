@@ -388,6 +388,15 @@
 			dims.widthBorder = ($.css(elem, 'borderLeftWidth', true) + $.css(elem, 'borderRightWidth', true)) || 0;
 			dims.heightBorder = ($.css(elem, 'borderTopWidth', true) + $.css(elem, 'borderBottomWidth', true)) || 0;
 			this.dimensions = dims;
+
+			// Adjust dimensions to account for rotation
+			if ((this._rotation || 0) % 180 !== 0) {
+				var width = this.dimensions.width;
+				this.dimensions.width = this.dimensions.height;
+				this.dimensions.height = width;
+
+				this.dimensions.top = (this.container.height - this.container.width) / 2;
+			}
 		},
 
 		/**
@@ -474,6 +483,9 @@
 			var matrix = rmatrix.exec(transform || this.getTransform());
 			if (matrix) {
 				matrix.shift();
+
+				// Reverse rotate matrix
+				matrix = this.rotateMatrix(matrix, true);
 			}
 			return matrix || [ 1, 0, 0, 1, 0, 0 ];
 		},
@@ -549,6 +561,9 @@
 				this.$zoomRange.val(scale);
 			}
 
+			// Rotate matrix
+			matrix = this.rotateMatrix(matrix);
+
 			// Set the matrix on this.$set
 			this.setTransform('matrix(' + matrix.join(',') + ')');
 
@@ -556,6 +571,34 @@
 				this._trigger('change', matrix);
 			}
 
+			return matrix;
+		},
+
+		/**
+		 * Rotates or reverse rotates the given matrix by the saved rotation angle
+		 * @param {Array} matrix
+		 * @param {Boolean} [reverse] Indicates whether the rotation should be reversed
+		 */
+		rotateMatrix: function(matrix, reverse) {
+			matrix = matrix.slice();
+
+			var rotation = this._rotation || 0;
+			var cos = Math.cos(rotation * Math.PI / 180);
+			var sin = Math.sin(rotation * Math.PI / 180);
+
+			var rotationMatrix = new Matrix([cos, sin, -sin, cos, 0, 0]);
+			if (reverse) {
+				rotationMatrix = rotationMatrix.inverse();
+			}
+
+			var rotated = new Matrix(matrix).x(rotationMatrix).elements;
+
+			// Format the values in the rotated matrix
+			for (var i = 0; i < rotated.length; i++) {
+				rotated[i] = +rotated[i].toFixed(10);
+			}
+
+			Array.prototype.splice.apply(matrix, [0, 6, rotated[0], rotated[3], rotated[1], rotated[4], rotated[2], rotated[5]]);
 			return matrix;
 		},
 
@@ -697,6 +740,28 @@
 			// Trigger zoom event
 			if (!options.silent) {
 				this._trigger('zoom', matrix[0], options);
+			}
+		},
+
+		/**
+		 * Rotate the element to the specified rotation angle, in degrees
+		 * @param {Number} [rotation] The angle of rotation
+		 * @param {Object} [options]
+		 * @param {Array} [options.matrix] The matrix being manipulated (if already known so it doesn't have to be retrieved again)
+		 * @param {Boolean} [options.silent] Silence the rotate event. Note that this will also silence the setMatrix change event.
+		 */
+		rotate: function(rotation, options) {
+			if (!options) { options = {}; }
+			var matrix = options.matrix || this.getMatrix();
+
+			// Save the rotation angle
+			this._rotation = rotation;
+
+			this.resetDimensions();
+			this.setMatrix(matrix, options);
+
+			if (!options.silent) {
+				this._trigger('rotate', rotation);
 			}
 		},
 
