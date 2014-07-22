@@ -387,16 +387,18 @@
 			}
 			dims.widthBorder = ($.css(elem, 'borderLeftWidth', true) + $.css(elem, 'borderRightWidth', true)) || 0;
 			dims.heightBorder = ($.css(elem, 'borderTopWidth', true) + $.css(elem, 'borderBottomWidth', true)) || 0;
-			this.dimensions = dims;
 
 			// Adjust dimensions to account for rotation
 			if ((this._rotation || 0) % 180 !== 0) {
-				var width = this.dimensions.width;
-				this.dimensions.width = this.dimensions.height;
-				this.dimensions.height = width;
+				var width = dims.width;
+				dims.width = dims.height;
+				dims.height = width;
 
-				this.dimensions.top = (this.container.height - this.container.width) / 2;
+				dims.left = (dims.width > this.container.width ? this.container.width - dims.width : 0) / 2;
+				dims.top = (dims.height > dims.width ? this.container.height - dims.height : dims.height - this.container.height) / 2;
 			}
+
+			this.dimensions = dims;
 		},
 
 		/**
